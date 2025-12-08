@@ -35,10 +35,10 @@ public class App {
             }
         }
         
-        final int connectionLimit = 1000;
-        int connectionsMade = 0;
+        int circuitSize = 0;
+        long wallDistance = 0;
         final List<Set<Point>> circuits = new ArrayList<>();
-        while (connectionsMade < connectionLimit) {
+        while (circuitSize < boxCount) {
             double min = Double.MAX_VALUE;
             int minI = 0;
             int minJ = 0;
@@ -71,22 +71,26 @@ public class App {
                     circuit.add(boxJ);
                     circuits.add(circuit);
                 } else {
-                    circuits.get(circuitJ).add(boxI);
+                    final Set<Point> circuit = circuits.get(circuitJ);
+                    circuit.add(boxI);
+                    circuitSize = circuit.size();
                 }
-                connectionsMade++;
             } else {
                 if(circuitJ == -1){
-                    circuits.get(circuitI).add(boxJ);
-                    connectionsMade++;
+                    final Set<Point> circuit = circuits.get(circuitI);
+                    circuit.add(boxJ);
+                    circuitSize = circuit.size();
                 } else {
                     if(circuitI != circuitJ){
-                        circuits.get(circuitI).addAll(circuits.get(circuitJ));
+                        final Set<Point> circuit = circuits.get(circuitI);
+                        circuit.addAll(circuits.get(circuitJ));
                         circuits.remove(circuitJ);
-                        connectionsMade++;
-                    } else {
-                        connectionsMade++;
+                        circuitSize = circuit.size();
                     }
                 }
+            }
+            if (circuitSize == boxCount) {
+                wallDistance = (long)boxI.getX() * (long)boxJ.getX();
             }
             distances[minI][minJ] = Double.MAX_VALUE;
         }
@@ -97,13 +101,7 @@ public class App {
         }
         Arrays.sort(circuitSizes);
         System.out.println("Circuit sizes: " + Arrays.toString(circuitSizes));
-        
-        long product = 1L;
-        for (int i = 1; i <= 3; i++) {
-            System.out.println("Top "+ i +" circuit size: " + circuitSizes[circuitSizes.length-i]);
-            product *= circuitSizes[circuitSizes.length-i];
-        }
-        System.out.println("product: " + product);
-        
+        System.out.println("BoxCount: " + boxCount);
+        System.out.println("Wall distance: " + wallDistance);
     }
 }
