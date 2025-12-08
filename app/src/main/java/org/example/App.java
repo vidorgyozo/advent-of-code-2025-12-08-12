@@ -6,14 +6,104 @@ package org.example;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class App {
+    
+    
 
-    public static void main(String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
+    public static void main(final String[] args) {
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
-        System.out.println(Arrays.toString(lines));
+        final int boxCount = lines.length;
+        
+        final Point[] boxes = new Point[boxCount];
+        for (int i = 0; i < boxCount; i++) {
+            final String[] line = lines[i].split(",");
+            boxes[i] = new Point(Integer.parseInt(line[0]), Integer.parseInt(line[1]), Integer.parseInt(line[2]));
+        }
+        
+        final double[][] distances = new double[boxCount][boxCount];
+        for (int i = 0; i < boxCount; i++) {
+            for (int j = 0; j < boxCount; j++) {
+                distances[i][j] = boxes[i].distance(boxes[j]);
+            }
+        }
+        
+        final int connectionLimit = 1000;
+        int connectionsMade = 0;
+        final List<Set<Point>> circuits = new ArrayList<>();
+        while (connectionsMade < connectionLimit) {
+            double min = Double.MAX_VALUE;
+            int minI = 0;
+            int minJ = 0;
+            for (int i = 0; i < boxCount; i++) {
+                for (int j = 0; j < i; j++) {
+                    if (distances[i][j] < min) {
+                        min = distances[i][j];
+                        minI = i;
+                        minJ = j;
+                    }
+                }
+            }
+            
+            Point boxI = boxes[minI];
+            Point boxJ = boxes[minJ];
+            int circuitI = -1;
+            int circuitJ = -1;
+            for (int i = 0; i < circuits.size(); i++) {
+                if (circuits.get(i).contains(boxI)) {
+                    circuitI = i;
+                }
+                if (circuits.get(i).contains(boxJ)) {
+                    circuitJ = i;
+                }
+            }
+            if (circuitI == -1) {
+                if(circuitJ == -1){
+                    final Set<Point> circuit = new HashSet<>();
+                    circuit.add(boxI);
+                    circuit.add(boxJ);
+                    circuits.add(circuit);
+                } else {
+                    circuits.get(circuitJ).add(boxI);
+                }
+                connectionsMade++;
+            } else {
+                if(circuitJ == -1){
+                    circuits.get(circuitI).add(boxJ);
+                    connectionsMade++;
+                } else {
+                    if(circuitI != circuitJ){
+                        circuits.get(circuitI).addAll(circuits.get(circuitJ));
+                        circuits.remove(circuitJ);
+                        connectionsMade++;
+                    } else {
+                        connectionsMade++;
+                    }
+                }
+            }
+            distances[minI][minJ] = Double.MAX_VALUE;
+        }
+        
+        final int[] circuitSizes = new int[circuits.size()];
+        for (int i = 0; i < circuits.size(); i++) {
+            circuitSizes[i] = circuits.get(i).size();
+        }
+        Arrays.sort(circuitSizes);
+        System.out.println("Circuit sizes: " + Arrays.toString(circuitSizes));
+        
+        long product = 1L;
+        for (int i = 1; i <= 3; i++) {
+            System.out.println("Top "+ i +" circuit size: " + circuitSizes[circuitSizes.length-i]);
+            product *= circuitSizes[circuitSizes.length-i];
+        }
+        System.out.println("product: " + product);
+        
     }
 }
