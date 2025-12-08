@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 public class App {
 
     public static void main(final String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("input08.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
         Aoc08.task8(lines);
