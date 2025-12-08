@@ -6,102 +6,13 @@ package org.example;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class App {
-    
-    
 
     public static void main(final String[] args) {
         final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
-        final int boxCount = lines.length;
-        
-        final Point[] boxes = new Point[boxCount];
-        for (int i = 0; i < boxCount; i++) {
-            final String[] line = lines[i].split(",");
-            boxes[i] = new Point(Integer.parseInt(line[0]), Integer.parseInt(line[1]), Integer.parseInt(line[2]));
-        }
-        
-        final double[][] distances = new double[boxCount][boxCount];
-        for (int i = 0; i < boxCount; i++) {
-            for (int j = 0; j < boxCount; j++) {
-                distances[i][j] = boxes[i].distance(boxes[j]);
-            }
-        }
-        
-        int circuitSize = 0;
-        long wallDistance = 0;
-        final List<Set<Point>> circuits = new ArrayList<>();
-        while (circuitSize < boxCount) {
-            double min = Double.MAX_VALUE;
-            int minI = 0;
-            int minJ = 0;
-            for (int i = 0; i < boxCount; i++) {
-                for (int j = 0; j < i; j++) {
-                    if (distances[i][j] < min) {
-                        min = distances[i][j];
-                        minI = i;
-                        minJ = j;
-                    }
-                }
-            }
-            
-            Point boxI = boxes[minI];
-            Point boxJ = boxes[minJ];
-            int circuitI = -1;
-            int circuitJ = -1;
-            for (int i = 0; i < circuits.size(); i++) {
-                if (circuits.get(i).contains(boxI)) {
-                    circuitI = i;
-                }
-                if (circuits.get(i).contains(boxJ)) {
-                    circuitJ = i;
-                }
-            }
-            if (circuitI == -1) {
-                if(circuitJ == -1){
-                    final Set<Point> circuit = new HashSet<>();
-                    circuit.add(boxI);
-                    circuit.add(boxJ);
-                    circuits.add(circuit);
-                } else {
-                    final Set<Point> circuit = circuits.get(circuitJ);
-                    circuit.add(boxI);
-                    circuitSize = circuit.size();
-                }
-            } else {
-                if(circuitJ == -1){
-                    final Set<Point> circuit = circuits.get(circuitI);
-                    circuit.add(boxJ);
-                    circuitSize = circuit.size();
-                } else {
-                    if(circuitI != circuitJ){
-                        final Set<Point> circuit = circuits.get(circuitI);
-                        circuit.addAll(circuits.get(circuitJ));
-                        circuits.remove(circuitJ);
-                        circuitSize = circuit.size();
-                    }
-                }
-            }
-            if (circuitSize == boxCount) {
-                wallDistance = (long)boxI.getX() * (long)boxJ.getX();
-            }
-            distances[minI][minJ] = Double.MAX_VALUE;
-        }
-        
-        final int[] circuitSizes = new int[circuits.size()];
-        for (int i = 0; i < circuits.size(); i++) {
-            circuitSizes[i] = circuits.get(i).size();
-        }
-        Arrays.sort(circuitSizes);
-        System.out.println("Circuit sizes: " + Arrays.toString(circuitSizes));
-        System.out.println("BoxCount: " + boxCount);
-        System.out.println("Wall distance: " + wallDistance);
+        Aoc08.task8(lines);
     }
 }
