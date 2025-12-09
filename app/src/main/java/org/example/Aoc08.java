@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Aoc08 {
-    public static void task8(String[] lines) {
+    public static void task8Circuits(String[] lines) {
         final int boxCount = lines.length;
 
         final Point[] boxes = new Point[boxCount];
