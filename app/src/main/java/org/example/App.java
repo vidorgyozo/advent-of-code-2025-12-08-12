@@ -10,9 +10,26 @@ import java.io.InputStreamReader;
 public class App {
 
     public static void main(final String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("input08.txt");
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
-        Aoc08.task8(lines);
+        final int tileCount = lines.length;
+        final long[][] tileCoordinates = new long[lines.length][2];
+        for (int i = 0; i < tileCount; i++) {
+            final String[] line = lines[i].split(",");
+            tileCoordinates[i][0] = Long.parseLong(line[0]);
+            tileCoordinates[i][1] = Long.parseLong(line[1]);
+        }
+        final long[][] rectangleSizes = new long[tileCount][tileCount];
+        long max = 0;
+        for (int i = 0; i < tileCount; i++) {
+            for (int j = 0; j < i; j++) {
+                rectangleSizes[i][j] = (Math.abs(tileCoordinates[i][0] - tileCoordinates[j][0]) + 1) * (Math.abs(tileCoordinates[i][1] - tileCoordinates[j][1]) + 1);
+                if  (rectangleSizes[i][j] > max) {
+                    max = rectangleSizes[i][j];
+                }
+            }
+        }
+        System.out.println(max);
     }
 }
