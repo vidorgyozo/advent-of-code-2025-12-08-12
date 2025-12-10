@@ -102,18 +102,16 @@ public class App {
         }
         // Replace index with all possible elements
         for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
-            // Current element is included
-            pressButtonOnResult(i);
-            // Recur for next elements if not over target already
-            if (checkIfTargetReachable(remainingSteps - 1, i)){
+            final int futureSteps = remainingSteps - 1;
+            if(pressButtonOnResult(i, futureSteps)){
                 combinationUtilForRepeating(i, combinationSize, currentCombinationSum + 1);
+                // Backtrack to find other combinations
+                removeButtonOnResult(i);
             }
-            // Backtrack to find other combinations
-            removeButtonOnResult(i);
         }
     }
 
-    private static boolean checkIfTargetReachable(int remainingSteps, int buttonIndex){
+    private static boolean checkIfTargetReachable(final int remainingSteps, final int buttonIndex){
         boolean reachable = true;
         if(currentLineCorrectVoltSum - currentLineVoltSum > remainingSteps * currentLineButtonVolts[buttonIndex]){
             return false;
@@ -128,12 +126,23 @@ public class App {
         return reachable;
     }
 
-    static void pressButtonOnResult(final int buttonIndex){
-        currentLineVoltSum += currentLineButtonVolts[buttonIndex];
+    static boolean pressButtonOnResult(final int buttonIndex, final int remainingSteps){
         final int[] button = currentLineButtons[buttonIndex];
-        for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
-            currentLineResult[l] += button[l];
+        final int[] tempResult = new int[currentLineResult.length];
+        final int tempVoltSum = currentLineVoltSum + currentLineButtonVolts[buttonIndex];;
+        if (currentLineCorrectVoltSum - tempVoltSum > remainingSteps * currentLineButtonVolts[buttonIndex]){
+            return false;
         }
+        for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
+            final int result = currentLineResult[l] + button[l];
+            if(result > currentLineCorrectVoltage[l] || result < currentLineCorrectVoltage[l] - remainingSteps){
+                return false;
+            }
+            tempResult[l] = result;
+        }
+        currentLineResult = tempResult;
+        currentLineVoltSum = tempVoltSum;
+        return true;
     }
 
     static void removeButtonOnResult(final int buttonIndex){
