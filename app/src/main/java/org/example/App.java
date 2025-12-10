@@ -73,7 +73,7 @@ public class App {
             for(int j = maxVoltage; lineHitInputSize < 1; j++){
                 System.out.println("Iteration with number of presses: " + j + " for line " + i);
                 currentLineResult = new int[currentLineCorrectVoltage.length];
-                findCombinationWithRepeat(currentLineButtons.length, j);
+                findCombinationWithRepeat(j);
             }
             sum += lineHitInputSize;
             System.out.println("Hit input size for line " + i + ": " + lineHitInputSize);
@@ -85,17 +85,12 @@ public class App {
     }
 
 
-    static List<int[]> findCombinationWithRepeat(final int indexesSize, final int combinationSize) {
-        // to store the result
-        final List<int[]> result = new ArrayList<>();
+    static void findCombinationWithRepeat(final int combinationSize) {
         // Temporary array to store current combination
-        final int[] data = new int[indexesSize];
-        combinationUtilForRepeating(0, combinationSize, data, result, 0);
-        return result;
+        combinationUtilForRepeating(0, combinationSize, 0);
     }
 
-    static void combinationUtilForRepeating(final int index, final int combinationSize, final int[] currentCombination,
-                                            final List<int[]> result, int currentCombinationSum) {
+    static void combinationUtilForRepeating(final int index, final int combinationSize, final int currentCombinationSum) {
         final int indexesSize = currentLineButtons.length;
         // If size of current combination is combinationSize
         final int remainingSteps = combinationSize - currentCombinationSum;
@@ -111,7 +106,7 @@ public class App {
             pressButtonOnResult(i);
             // Recur for next elements if not over target already
             if (checkIfTargetReachable(remainingSteps - 1, i)){
-                combinationUtilForRepeating(i, combinationSize, currentCombination, result, currentCombinationSum + 1);
+                combinationUtilForRepeating(i, combinationSize, currentCombinationSum + 1);
             }
             // Backtrack to find other combinations
             removeButtonOnResult(i);
@@ -148,5 +143,4 @@ public class App {
             currentLineResult[l] -= button[l];
         }
     }
-
 }
