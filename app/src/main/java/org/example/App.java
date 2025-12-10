@@ -4,8 +4,13 @@
 package org.example;
 
 import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -28,7 +33,7 @@ public class App {
     private static boolean[][] currentLineAlterable;
     private static int currentLineAlterableRelevant;
 
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws IOException {
         final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
@@ -106,7 +111,14 @@ public class App {
             sum += lineHitInputSize;
             System.out.println("Hit input size for line " + i + ": " + lineHitInputSize);
         }
-        System.out.println("Min hit input size: " + sum);
+        System.out.println("Sum hit input size: " + sum);
+        Path file = Path.of("aoc10result.txt");
+        Files.writeString(
+                file,
+                String.valueOf(sum),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+        );
     }
 
     private record VoltButton(int volt, int[] volts) {
