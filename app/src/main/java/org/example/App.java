@@ -26,6 +26,7 @@ public class App {
     private static int currentLineVoltSum;
     private static List<int[]> currentLineStates;
     private static boolean[][] currentLineAlterable;
+    private static int currentLineAlterableRelevant;
 
     public static void main(final String[] args) {
         final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
@@ -76,8 +77,22 @@ public class App {
                     }
                 }
             }
+            for (int j = 0; j < currentLineButtonCount; j++) {
+                boolean relevant = false;
+                for (int k = 0; k < currentLineMachineCount; k++) {
+                    if(!currentLineAlterable[j][k]){
+                        relevant = true;
+                        break;
+                    }
+                }
+                if(relevant){
+                    currentLineAlterableRelevant = j;
+                    break;
+                }
+            }
             System.out.println(Arrays.deepToString(currentLineButtons));
             System.out.println(Arrays.deepToString(currentLineAlterable));
+            System.out.println("Alterable relevant: " + currentLineAlterableRelevant);
             System.out.println(Arrays.toString(currentLineButtonVolts));
             System.out.println(currentLineButtonVoltMax);
 
@@ -115,7 +130,7 @@ public class App {
         }
         // Replace index with all possible elements
         for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
-            if(!checkIfFillIsPossible(i)){
+            if(i >= currentLineAlterableRelevant && !checkIfFillIsPossible(i)){
                 break;
             }
             final int futureSteps = remainingSteps - 1;
