@@ -21,34 +21,38 @@ public class App {
         final String[] lines = br.lines().toArray(String[]::new);
         long sum = 0;
         for(int i = 0; i < lines.length; i++){
+            int maxVoltage = 0;
             final String[] line = lines[i].split(" ");
-            final String correctString = line[0].substring(1, line[0].length() - 1);
-            final BitSet correctBitSet = new BitSet(correctString.length());
-            for(int j = 0; j < correctString.length(); j++){
-                if(correctString.charAt(j) == '#'){
-                    correctBitSet.set(j);
-                }
-            }
-            final BitSet[] buttons = new BitSet[line.length - 2];
-            for(int j = 1; j < line.length - 1; j++){
-                final int buttonsIndex = j - 1;
-                buttons[buttonsIndex] = new BitSet(correctBitSet.length());
-                final String buttonsString = line[j].substring(1, line[j].length() - 1);
-                final String[] buttonLights = buttonsString.split(",");
-                for (final String buttonLight : buttonLights) {
-                    buttons[buttonsIndex].set(Integer.parseInt(buttonLight));
+            final String[] correctVoltageString = line[line.length - 1].substring(1, line[0].length() - 1).split(",");
+            final int[] correctVoltage = new int[correctVoltageString.length];
+            for(int j = 0; j < correctVoltageString.length; j++){
+                correctVoltage[j] =  Integer.parseInt(correctVoltageString[j]);
+                if(maxVoltage < correctVoltage[j]){
+                    maxVoltage = correctVoltage[j];
                 }
             }
 
+            final int[][] buttons = new int[line.length - 2][correctVoltage.length];
+            for(int j = 1; j < line.length - 1; j++){
+                final int buttonsIndex = j - 1;
+                final int[] buttonLine = new int[correctVoltage.length];
+                final String buttonsString = line[j].substring(1, line[j].length() - 1);
+                final String[] buttonLights = buttonsString.split(",");
+                for (final String buttonLight : buttonLights) {
+                    buttonLine[Integer.parseInt(buttonLight)] = 1;
+                }
+                buttons[buttonsIndex] = buttonLine;
+            }
+
             int hitInputSize = -1;
-            for(int j = 1; j <= buttons.length && hitInputSize < 1; j++){
+            for(int j = maxVoltage; hitInputSize < 1; j++){
                 final List<List<Integer>> combinationList = findCombination(buttons.length, j);
                 for(final List<Integer> combination : combinationList){
-                    final BitSet result = new BitSet(correctBitSet.length());
+                    final BitSet result = new BitSet(correctVoltage.length());
                     for (final Integer buttonIndex : combination) {
                         result.xor(buttons[buttonIndex]);
                     }
-                    if(result.equals(correctBitSet)){
+                    if(result.equals(correctVoltage)){
                         hitInputSize = j;
                     }
                 }
