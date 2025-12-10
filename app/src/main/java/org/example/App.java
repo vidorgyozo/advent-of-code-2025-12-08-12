@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import com.google.common.collect.Lists;
@@ -26,9 +25,10 @@ public class App {
     private static int[] currentLineButtonVolts;
     private static int currentLineVoltSum;
     private static List<int[]> currentLineStates;
+    private static boolean[][] currentLineAlterable;
 
     public static void main(final String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
         long sum = 0;
@@ -52,7 +52,7 @@ public class App {
             final List<VoltButton> buttonList = Lists.newArrayList();
             currentLineButtonVoltMax = 0;
             for(int j = 1; j < line.length - 1; j++){
-                final int[] buttonLine = new int[correctVoltage.length];
+                final int[] buttonLine = new int[currentLineMachineCount];
                 final String buttonsString = line[j].substring(1, line[j].length() - 1);
                 final String[] buttonLights = buttonsString.split(",");
                 for (final String buttonLight : buttonLights) {
@@ -66,7 +66,18 @@ public class App {
             currentLineButtons = buttonList.stream().map(VoltButton::volts).toArray(int[][]::new);
             currentLineButtonVolts = buttonList.stream().mapToInt(VoltButton::volt).toArray();
             currentLineButtonVoltMax = buttonList.getFirst().volt();
+            currentLineAlterable = new boolean[currentLineButtonCount][currentLineMachineCount];
+            for (int j = currentLineButtonCount - 1; j >= 0; j--) {
+                for (int k = 0; k <= j; k++) {
+                    for (int l = 0; l < currentLineMachineCount; l++) {
+                        if(currentLineButtons[j][l] == 1){
+                            currentLineAlterable[k][l] = true;
+                        }
+                    }
+                }
+            }
             System.out.println(Arrays.deepToString(currentLineButtons));
+            System.out.println(Arrays.deepToString(currentLineAlterable));
             System.out.println(Arrays.toString(currentLineButtonVolts));
             System.out.println(currentLineButtonVoltMax);
 
@@ -104,6 +115,9 @@ public class App {
         }
         // Replace index with all possible elements
         for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
+            if(!checkIfFillIsPossible(i)){
+                break;
+            }
             final int futureSteps = remainingSteps - 1;
             if(pressButtonOnResult(i, futureSteps)){
                 combinationUtilForRepeating(i, combinationSize, currentCombinationSum + 1);
@@ -111,6 +125,15 @@ public class App {
                 removeButtonOnResult(i);
             }
         }
+    }
+
+    private static boolean checkIfFillIsPossible(final int currentIndex) {
+        for(int i = 0; i < currentLineResult.length; i++){
+            if(currentLineResult[i] != currentLineCorrectVoltage[i] && !currentLineAlterable[currentIndex][i]){
+                return false;
+            }
+        }
+        return true;
     }
 
     static boolean pressButtonOnResult(final int buttonIndex, final int remainingSteps){
