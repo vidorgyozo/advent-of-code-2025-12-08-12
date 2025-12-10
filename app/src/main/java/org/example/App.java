@@ -45,12 +45,9 @@ public class App {
             }
             currentLineCorrectVoltage = correctVoltage;
 
-            final int[][] buttons = new int[line.length - 2][correctVoltage.length];
             final List<VoltButton> buttonList = Lists.newArrayList();
             currentLineButtonVoltMax = 0;
-            currentLineButtonVolts = new int[buttons.length];
             for(int j = 1; j < line.length - 1; j++){
-                final int buttonsIndex = j - 1;
                 final int[] buttonLine = new int[correctVoltage.length];
                 final String buttonsString = line[j].substring(1, line[j].length() - 1);
                 final String[] buttonLights = buttonsString.split(",");
@@ -59,20 +56,20 @@ public class App {
                 }
                 int volt = buttonLights.length;
                 buttonList.add(new VoltButton(volt, buttonLine));
-                currentLineButtonVolts[buttonsIndex] = volt;
-                if (currentLineButtonVoltMax < volt) {
-                    currentLineButtonVoltMax = volt;
-                }
             }
             buttonList.sort(Comparator.comparingInt(VoltButton::volt).reversed());
-            System.out.println(buttonList);
-            currentLineButtons = buttons;
+            currentLineButtons = buttonList.stream().map(VoltButton::volts).toArray(int[][]::new);
+            currentLineButtonVolts = buttonList.stream().mapToInt(VoltButton::volt).toArray();
+            currentLineButtonVoltMax = buttonList.getFirst().volt();
+            System.out.println(Arrays.deepToString(currentLineButtons));
+            System.out.println(Arrays.toString(currentLineButtonVolts));
+            System.out.println(currentLineButtonVoltMax);
 
             currentLineVoltSum = 0;
             for(int j = maxVoltage; lineHitInputSize < 1; j++){
                 System.out.println("Iteration with number of presses: " + j + " for line " + i);
                 currentLineResult = new int[currentLineCorrectVoltage.length];
-                findCombinationWithRepeat(buttons.length, j);
+                findCombinationWithRepeat(currentLineButtons.length, j);
             }
             sum += lineHitInputSize;
             System.out.println("Hit input size for line " + i + ": " + lineHitInputSize);
