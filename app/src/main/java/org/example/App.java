@@ -25,7 +25,7 @@ public class App {
     private static int currentLineVoltSum;
 
     public static void main(final String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
         long sum = 0;
@@ -104,13 +104,13 @@ public class App {
         // Replace index with all possible elements
         for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
             // Current element is included
-            pressButtonOnResult(i, currentLineResult, 1);
+            pressButtonOnResult(i, currentLineResult);
             // Recur for next elements if not over target already
             if (checkIfTargetReachable(currentLineResult, currentLineCorrectVoltage, remainingSteps - 1, i)){
                 combinationUtilForRepeating(i, combinationSize, currentCombination, result, currentCombinationSum + 1);
             }
             // Backtrack to find other combinations
-            pressButtonOnResult(i, currentLineResult, -1);
+            removeButtonOnResult(i, currentLineResult);
         }
     }
 
@@ -129,11 +129,19 @@ public class App {
         return reachable;
     }
 
-    static void pressButtonOnResult(final int buttonIndex, final int[] result, final int numberOfTimes){
-        currentLineVoltSum += numberOfTimes * currentLineButtonVolts[buttonIndex];
+    static void pressButtonOnResult(final int buttonIndex, final int[] result){
+        currentLineVoltSum += currentLineButtonVolts[buttonIndex];
         final int[] button = currentLineButtons[buttonIndex];
         for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
-            result[l] += button[l] * numberOfTimes;
+            result[l] += button[l];
+        }
+    }
+
+    static void removeButtonOnResult(final int buttonIndex, final int[] result){
+        currentLineVoltSum -= currentLineButtonVolts[buttonIndex];
+        final int[] button = currentLineButtons[buttonIndex];
+        for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
+            result[l] -= button[l];
         }
     }
 
