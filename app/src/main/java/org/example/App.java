@@ -19,9 +19,10 @@ public class App {
     private static int[] currentLineCorrectVoltage;
     private static int[][] currentLineButtons;
     private static int lineHitInputSize;
+    private static int[] currentLineResult;
 
     public static void main(final String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
         long sum = 0;
@@ -53,12 +54,68 @@ public class App {
             currentLineButtons = buttons;
 
             for(int j = maxVoltage; lineHitInputSize < 1; j++){
+                System.out.println("Iteration with number of presses: " + j + " for line " + i);
+                currentLineResult = new int[currentLineCorrectVoltage.length];
                 findCombinationWithRepeat(buttons.length, j);
             }
             sum += lineHitInputSize;
             System.out.println("Hit input size for line " + i + ": " + lineHitInputSize);
         }
         System.out.println("Min hit input size: " + sum);
+    }
+
+
+    static List<int[]> findCombinationWithRepeat(final int indexesSize, final int combinationSize) {
+        // to store the result
+        final List<int[]> result = new ArrayList<>();
+        // Temporary array to store current combination
+        final int[] data = new int[indexesSize];
+        combinationUtilForRepeating(0, combinationSize, data, result, 0);
+        return result;
+    }
+
+    static void combinationUtilForRepeating(final int index, final int combinationSize, final int[] currentCombination,
+                                            final List<int[]> result, int currentCombinationSum) {
+        final int indexesSize = currentCombination.length;
+        // If size of current combination is combinationSize
+        if (currentCombinationSum == combinationSize) {
+            //result.add(Arrays.copyOf(currentCombination, indexesSize));
+            if(Arrays.equals(currentLineCorrectVoltage, currentLineResult)){
+                lineHitInputSize = combinationSize;
+            }
+            return;
+        }
+        // Replace index with all possible elements
+        for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
+            // Current element is included
+            currentCombination[i]++;
+            pressButtonOnResult(currentLineButtons[i], currentLineResult, 1);
+            // Recur for next elements if not over target already
+            if (!checkIfOverTarget(currentLineResult, currentLineCorrectVoltage)){
+                combinationUtilForRepeating(i, combinationSize, currentCombination, result, currentCombinationSum + 1);
+            }
+            // Backtrack to find other combinations
+            currentCombination[i]--;
+            pressButtonOnResult(currentLineButtons[i], currentLineResult, -1);
+        }
+    }
+
+    private static boolean checkIfOverTarget(int[] currentState, int[] target){
+        boolean overTarget = false;
+        for(int i = 0; i < target.length; i++){
+            if(currentState[i] > target[i]){
+                overTarget = true;
+                System.out.println("Over Target!");
+                break;
+            }
+        }
+        return overTarget;
+    }
+
+    static void pressButtonOnResult(int[] button, int[] result, int numberOfTimes){
+        for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
+            result[l] += button[l] * numberOfTimes;
+        }
     }
 
     static List<List<Integer>> findCombination(final int indexesSize, final int combinationSize) {
@@ -72,45 +129,6 @@ public class App {
         final List<Integer> data = new ArrayList<>();
         combinationUtil(0, combinationSize, data, result, indexes);
         return result;
-    }
-
-    static List<int[]> findCombinationWithRepeat(final int indexesSize, final int combinationSize) {
-        // to store the result
-        final List<int[]> result = new ArrayList<>();
-        // Temporary array to store current combination
-        final int[] data = new int[indexesSize];
-        combinationUtilForRepeating(0, combinationSize, data, result, 0);
-        return result;
-    }
-
-    static void combinationUtilForRepeating(final int index, final int combinationSize, final int[] currentCombination,
-                                final List<int[]> result, int currentCombinationSum) {
-        final int indexesSize = currentCombination.length;
-        // If size of current combination is combinationSize
-        if (currentCombinationSum == combinationSize) {
-            //result.add(Arrays.copyOf(currentCombination, indexesSize));
-            final int[] voltageResult = new int[currentLineCorrectVoltage.length];
-            for (int k = 0; k < currentCombination.length; k++) {
-                final int[] button = currentLineButtons[k];
-                final int pressNumber = currentCombination[k];
-                for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
-                    voltageResult[l] += button[l] * pressNumber;
-                }
-            }
-            if(Arrays.equals(currentLineCorrectVoltage, voltageResult)){
-                lineHitInputSize = combinationSize;
-            }
-            return;
-        }
-        // Replace index with all possible elements
-        for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
-            // Current element is included
-            currentCombination[i]++;
-            // Recur for next elements
-            combinationUtilForRepeating(i, combinationSize, currentCombination, result, currentCombinationSum + 1);
-            // Backtrack to find other combinations
-            currentCombination[i]--;
-        }
     }
 
     static void combinationUtil(final int index, final int combinationSize, final List<Integer> combination,
