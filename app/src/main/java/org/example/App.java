@@ -108,7 +108,7 @@ public class App {
             //currentCombination[i]++;
             pressButtonOnResult(i, currentLineResult, 1);
             // Recur for next elements if not over target already
-            if (checkIfTargetReachable(currentLineResult, currentLineCorrectVoltage, remainingSteps)){
+            if (checkIfTargetReachable(currentLineResult, currentLineCorrectVoltage, remainingSteps - 1, i)){
                 combinationUtilForRepeating(i, combinationSize, currentCombination, result, currentCombinationSum + 1);
             }
             // Backtrack to find other combinations
@@ -117,9 +117,9 @@ public class App {
         }
     }
 
-    private static boolean checkIfTargetReachable(int[] currentState, int[] target, int remainingSteps){
+    private static boolean checkIfTargetReachable(int[] currentState, int[] target, int remainingSteps, int buttonIndex){
         boolean reachable = true;
-        if(currentLineCorrectVoltSum - currentLineVoltSum > remainingSteps * currentLineButtonVoltMax){
+        if(currentLineCorrectVoltSum - currentLineVoltSum > remainingSteps * currentLineButtonVolts[buttonIndex]){
             return false;
         }
         for(int i = 0; i < target.length; i++){
