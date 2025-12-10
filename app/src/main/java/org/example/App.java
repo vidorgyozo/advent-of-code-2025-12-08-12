@@ -25,7 +25,7 @@ public class App {
     private static int currentLineVoltSum;
 
     public static void main(final String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
         long sum = 0;
@@ -96,7 +96,6 @@ public class App {
         // If size of current combination is combinationSize
         final int remainingSteps = combinationSize - currentCombinationSum;
         if (remainingSteps == 0) {
-            //result.add(Arrays.copyOf(currentCombination, indexesSize));
             if(Arrays.equals(currentLineCorrectVoltage, currentLineResult)){
                 lineHitInputSize = combinationSize;
             }
@@ -105,14 +104,12 @@ public class App {
         // Replace index with all possible elements
         for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
             // Current element is included
-            //currentCombination[i]++;
             pressButtonOnResult(i, currentLineResult, 1);
             // Recur for next elements if not over target already
             if (checkIfTargetReachable(currentLineResult, currentLineCorrectVoltage, remainingSteps - 1, i)){
                 combinationUtilForRepeating(i, combinationSize, currentCombination, result, currentCombinationSum + 1);
             }
             // Backtrack to find other combinations
-            //currentCombination[i]--;
             pressButtonOnResult(i, currentLineResult, -1);
         }
     }
@@ -140,35 +137,4 @@ public class App {
         }
     }
 
-    static List<List<Integer>> findCombination(final int indexesSize, final int combinationSize) {
-        final int[] indexes = new int[indexesSize];
-        for(int i = 0; i < indexesSize; i++){
-            indexes[i] = i;
-        }
-        // to store the result
-        final List<List<Integer>> result = new ArrayList<>();
-        // Temporary array to store current combination
-        final List<Integer> data = new ArrayList<>();
-        combinationUtil(0, combinationSize, data, result, indexes);
-        return result;
-    }
-
-    static void combinationUtil(final int index, final int combinationSize, final List<Integer> combination,
-                                final List<List<Integer>> result, final int[] indexes) {
-        final int indexesSize = indexes.length;
-        // If size of current combination is combinationSize
-        if (combination.size() == combinationSize) {
-            result.add(new ArrayList<>(combination));
-            return;
-        }
-        // Replace index with all possible elements
-        for (int i = index; i < indexesSize; i++) {
-            // Current element is included
-            combination.add(indexes[i]);
-            // Recur for next elements
-            combinationUtil(i + 1, combinationSize, combination, result, indexes);
-            // Backtrack to find other combinations
-            combination.removeLast();
-        }
-    }
 }

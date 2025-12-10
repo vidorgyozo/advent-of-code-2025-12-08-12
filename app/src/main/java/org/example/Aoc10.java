@@ -1,9 +1,8 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-
-import static org.example.App.findCombination;
 
 public class Aoc10 {
     public static void task1(final String[] lines) {
@@ -45,5 +44,38 @@ public class Aoc10 {
             System.out.println("Hit input size for line " + i + ": " + hitInputSize);
         }
         System.out.println("Min hit input size: " + sum);
+    }
+
+
+    static List<List<Integer>> findCombination(final int indexesSize, final int combinationSize) {
+        final int[] indexes = new int[indexesSize];
+        for(int i = 0; i < indexesSize; i++){
+            indexes[i] = i;
+        }
+        // to store the result
+        final List<List<Integer>> result = new ArrayList<>();
+        // Temporary array to store current combination
+        final List<Integer> data = new ArrayList<>();
+        combinationUtil(0, combinationSize, data, result, indexes);
+        return result;
+    }
+
+    static void combinationUtil(final int index, final int combinationSize, final List<Integer> combination,
+                                final List<List<Integer>> result, final int[] indexes) {
+        final int indexesSize = indexes.length;
+        // If size of current combination is combinationSize
+        if (combination.size() == combinationSize) {
+            result.add(new ArrayList<>(combination));
+            return;
+        }
+        // Replace index with all possible elements
+        for (int i = index; i < indexesSize; i++) {
+            // Current element is included
+            combination.add(indexes[i]);
+            // Recur for next elements
+            combinationUtil(i + 1, combinationSize, combination, result, indexes);
+            // Backtrack to find other combinations
+            combination.removeLast();
+        }
     }
 }
