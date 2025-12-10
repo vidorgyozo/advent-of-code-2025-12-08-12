@@ -25,6 +25,7 @@ public class App {
     private static int currentLineButtonVoltMax;
     private static int[] currentLineButtonVolts;
     private static int currentLineVoltSum;
+    private static List<int[]> currentLineStates;
 
     public static void main(final String[] args) {
         final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
@@ -73,6 +74,7 @@ public class App {
             for(int j = maxVoltage; lineHitInputSize < 1; j++){
                 System.out.println("Iteration with number of presses: " + j + " for line " + i);
                 currentLineResult = new int[currentLineCorrectVoltage.length];
+                currentLineStates = new ArrayList<>(1000);
                 findCombinationWithRepeat(j);
             }
             sum += lineHitInputSize;
@@ -111,21 +113,6 @@ public class App {
         }
     }
 
-    private static boolean checkIfTargetReachable(final int remainingSteps, final int buttonIndex){
-        boolean reachable = true;
-        if(currentLineCorrectVoltSum - currentLineVoltSum > remainingSteps * currentLineButtonVolts[buttonIndex]){
-            return false;
-        }
-        for(int i = 0; i < currentLineMachineCount; i++){
-            if(currentLineResult[i] > currentLineCorrectVoltage[i] || currentLineResult[i] < currentLineCorrectVoltage[i] - remainingSteps){
-                reachable = false;
-                //System.out.println("Unreachable target!");
-                break;
-            }
-        }
-        return reachable;
-    }
-
     static boolean pressButtonOnResult(final int buttonIndex, final int remainingSteps){
         final int[] button = currentLineButtons[buttonIndex];
         final int[] tempResult = new int[currentLineResult.length];
@@ -140,6 +127,7 @@ public class App {
             }
             tempResult[l] = result;
         }
+        currentLineStates.add(currentLineResult);
         currentLineResult = tempResult;
         currentLineVoltSum = tempVoltSum;
         return true;
@@ -147,9 +135,7 @@ public class App {
 
     static void removeButtonOnResult(final int buttonIndex){
         currentLineVoltSum -= currentLineButtonVolts[buttonIndex];
-        final int[] button = currentLineButtons[buttonIndex];
-        for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
-            currentLineResult[l] -= button[l];
-        }
+        currentLineResult = currentLineStates.getLast();
+        currentLineStates.removeLast();
     }
 }
