@@ -8,10 +8,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import com.google.common.collect.Lists;
 
 public class App {
@@ -20,6 +19,10 @@ public class App {
     private static int[][] currentLineButtons;
     private static int lineHitInputSize;
     private static int[] currentLineResult;
+    private static int currentLineCorrectVoltSum;
+    private static int currentLineButtonVoltMax;
+    private static int[] currentLineButtonVolts;
+    private static int currentLineVoltSum;
 
     public static void main(final String[] args) {
         final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
@@ -29,11 +32,13 @@ public class App {
         for(int i = 0; i < lines.length; i++){
             lineHitInputSize = -1;
             int maxVoltage = 0;
+            currentLineCorrectVoltSum = 0;
             final String[] line = lines[i].split(" ");
             final String[] correctVoltageString = line[line.length - 1].substring(1, line[line.length - 1].length() - 1).split(",");
             final int[] correctVoltage = new int[correctVoltageString.length];
             for(int j = 0; j < correctVoltageString.length; j++){
                 correctVoltage[j] =  Integer.parseInt(correctVoltageString[j]);
+                currentLineCorrectVoltSum += correctVoltage[j];
                 if(maxVoltage < correctVoltage[j]){
                     maxVoltage = correctVoltage[j];
                 }
@@ -41,6 +46,9 @@ public class App {
             currentLineCorrectVoltage = correctVoltage;
 
             final int[][] buttons = new int[line.length - 2][correctVoltage.length];
+            final List<VoltButton> buttonList = Lists.newArrayList();
+            currentLineButtonVoltMax = 0;
+            currentLineButtonVolts = new int[buttons.length];
             for(int j = 1; j < line.length - 1; j++){
                 final int buttonsIndex = j - 1;
                 final int[] buttonLine = new int[correctVoltage.length];
@@ -49,10 +57,18 @@ public class App {
                 for (final String buttonLight : buttonLights) {
                     buttonLine[Integer.parseInt(buttonLight)] = 1;
                 }
-                buttons[buttonsIndex] = buttonLine;
+                int volt = buttonLights.length;
+                buttonList.add(new VoltButton(volt, buttonLine));
+                currentLineButtonVolts[buttonsIndex] = volt;
+                if (currentLineButtonVoltMax < volt) {
+                    currentLineButtonVoltMax = volt;
+                }
             }
+            buttonList.sort(Comparator.comparingInt(VoltButton::volt).reversed());
+            System.out.println(buttonList);
             currentLineButtons = buttons;
 
+            currentLineVoltSum = 0;
             for(int j = maxVoltage; lineHitInputSize < 1; j++){
                 System.out.println("Iteration with number of presses: " + j + " for line " + i);
                 currentLineResult = new int[currentLineCorrectVoltage.length];
@@ -62,6 +78,9 @@ public class App {
             System.out.println("Hit input size for line " + i + ": " + lineHitInputSize);
         }
         System.out.println("Min hit input size: " + sum);
+    }
+
+    private record VoltButton(int volt, int[] volts) {
     }
 
 
@@ -76,9 +95,10 @@ public class App {
 
     static void combinationUtilForRepeating(final int index, final int combinationSize, final int[] currentCombination,
                                             final List<int[]> result, int currentCombinationSum) {
-        final int indexesSize = currentCombination.length;
+        final int indexesSize = currentLineButtons.length;
         // If size of current combination is combinationSize
-        if (currentCombinationSum == combinationSize) {
+        final int remainingSteps = combinationSize - currentCombinationSum;
+        if (remainingSteps == 0) {
             //result.add(Arrays.copyOf(currentCombination, indexesSize));
             if(Arrays.equals(currentLineCorrectVoltage, currentLineResult)){
                 lineHitInputSize = combinationSize;
@@ -88,31 +108,36 @@ public class App {
         // Replace index with all possible elements
         for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
             // Current element is included
-            currentCombination[i]++;
-            pressButtonOnResult(currentLineButtons[i], currentLineResult, 1);
+            //currentCombination[i]++;
+            pressButtonOnResult(i, currentLineResult, 1);
             // Recur for next elements if not over target already
-            if (!checkIfOverTarget(currentLineResult, currentLineCorrectVoltage)){
+            if (checkIfTargetReachable(currentLineResult, currentLineCorrectVoltage, remainingSteps)){
                 combinationUtilForRepeating(i, combinationSize, currentCombination, result, currentCombinationSum + 1);
             }
             // Backtrack to find other combinations
-            currentCombination[i]--;
-            pressButtonOnResult(currentLineButtons[i], currentLineResult, -1);
+            //currentCombination[i]--;
+            pressButtonOnResult(i, currentLineResult, -1);
         }
     }
 
-    private static boolean checkIfOverTarget(int[] currentState, int[] target){
-        boolean overTarget = false;
+    private static boolean checkIfTargetReachable(int[] currentState, int[] target, int remainingSteps){
+        boolean reachable = true;
+        if(currentLineCorrectVoltSum - currentLineVoltSum > remainingSteps * currentLineButtonVoltMax){
+            return false;
+        }
         for(int i = 0; i < target.length; i++){
-            if(currentState[i] > target[i]){
-                overTarget = true;
-                System.out.println("Over Target!");
+            if(currentState[i] > target[i] || currentState[i] < target[i] - remainingSteps){
+                reachable = false;
+                //System.out.println("Unreachable target!");
                 break;
             }
         }
-        return overTarget;
+        return reachable;
     }
 
-    static void pressButtonOnResult(int[] button, int[] result, int numberOfTimes){
+    static void pressButtonOnResult(final int buttonIndex, final int[] result, final int numberOfTimes){
+        currentLineVoltSum += numberOfTimes * currentLineButtonVolts[buttonIndex];
+        final int[] button = currentLineButtons[buttonIndex];
         for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
             result[l] += button[l] * numberOfTimes;
         }
