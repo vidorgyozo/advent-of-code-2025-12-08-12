@@ -17,6 +17,8 @@ import com.google.common.collect.Lists;
 public class App {
 
     private static int[] currentLineCorrectVoltage;
+    private static int[][] currentLineButtons;
+    private static int lineHitInputSize;
 
     public static void main(final String[] args) {
         final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
@@ -24,6 +26,7 @@ public class App {
         final String[] lines = br.lines().toArray(String[]::new);
         long sum = 0;
         for(int i = 0; i < lines.length; i++){
+            lineHitInputSize = -1;
             int maxVoltage = 0;
             final String[] line = lines[i].split(" ");
             final String[] correctVoltageString = line[line.length - 1].substring(1, line[line.length - 1].length() - 1).split(",");
@@ -47,26 +50,13 @@ public class App {
                 }
                 buttons[buttonsIndex] = buttonLine;
             }
+            currentLineButtons = buttons;
 
-            int hitInputSize = -1;
-            for(int j = maxVoltage; hitInputSize < 1; j++){
-                final List<int[]> combinationList = findCombinationWithRepeat(buttons.length, j);
-                for(final int[] combination : combinationList){
-                    final int[] result = new int[correctVoltage.length];
-                    for (int k = 0; k < combination.length; k++) {
-                        final int[] button = buttons[k];
-                        final int pressNumber = combination[k];
-                        for (int l = 0; l < correctVoltage.length; l++) {
-                            result[l] += button[l] * pressNumber;
-                        }
-                    }
-                    if(Arrays.equals(correctVoltage, result)){
-                        hitInputSize = j;
-                    }
-                }
+            for(int j = maxVoltage; lineHitInputSize < 1; j++){
+                findCombinationWithRepeat(buttons.length, j);
             }
-            sum += hitInputSize;
-            System.out.println("Hit input size for line " + i + ": " + hitInputSize);
+            sum += lineHitInputSize;
+            System.out.println("Hit input size for line " + i + ": " + lineHitInputSize);
         }
         System.out.println("Min hit input size: " + sum);
     }
@@ -98,11 +88,22 @@ public class App {
         final int indexesSize = currentCombination.length;
         // If size of current combination is combinationSize
         if (currentCombinationSum == combinationSize) {
-            result.add(Arrays.copyOf(currentCombination, indexesSize));
+            //result.add(Arrays.copyOf(currentCombination, indexesSize));
+            final int[] voltageResult = new int[currentLineCorrectVoltage.length];
+            for (int k = 0; k < currentCombination.length; k++) {
+                final int[] button = currentLineButtons[k];
+                final int pressNumber = currentCombination[k];
+                for (int l = 0; l < currentLineCorrectVoltage.length; l++) {
+                    voltageResult[l] += button[l] * pressNumber;
+                }
+            }
+            if(Arrays.equals(currentLineCorrectVoltage, voltageResult)){
+                lineHitInputSize = combinationSize;
+            }
             return;
         }
         // Replace index with all possible elements
-        for (int i = index; i < indexesSize; i++) {
+        for (int i = index; i < indexesSize && lineHitInputSize < 1; i++) {
             // Current element is included
             currentCombination[i]++;
             // Recur for next elements
