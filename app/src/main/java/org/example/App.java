@@ -28,7 +28,7 @@ public class App {
     private static List<int[]> currentLineStates;
 
     public static void main(final String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("testinput.txt");
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
         long sum = 0;
@@ -116,7 +116,7 @@ public class App {
     static boolean pressButtonOnResult(final int buttonIndex, final int remainingSteps){
         final int[] button = currentLineButtons[buttonIndex];
         final int[] tempResult = new int[currentLineResult.length];
-        final int tempVoltSum = currentLineVoltSum + currentLineButtonVolts[buttonIndex];;
+        final int tempVoltSum = currentLineVoltSum + currentLineButtonVolts[buttonIndex];
         if (currentLineCorrectVoltSum - tempVoltSum > remainingSteps * currentLineButtonVolts[buttonIndex]){
             return false;
         }
