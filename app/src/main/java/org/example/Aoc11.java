@@ -51,7 +51,7 @@ public class Aoc11 {
         while (!network.successors(nodeMap.get("svr")).isEmpty()) {
             for(final MyNode n : network.nodes()) {
                 if (network.successors(n).isEmpty()) {
-                    final int nodeValue = n.value;
+                    final long nodeValue = n.value;
                     if(n.name.equals("dac") || n.name.equals("fft")) {
                         for(final MyNode m : network.nodes()) {
                             m.value = 0;
@@ -74,7 +74,7 @@ public class Aoc11 {
 
     private static class MyNode {
         String name;
-        int value;
+        long value;
 
         MyNode(final String name, final int value) {
             this.name = name;
