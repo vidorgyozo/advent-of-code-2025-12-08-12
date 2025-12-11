@@ -48,17 +48,23 @@ public class Aoc11 {
         System.out.println("Edges: " + network.edges().size());
         System.out.println("Nodes: " + network.nodes().size());
 
-        while (!network.successors(nodeMap.get("you")).isEmpty()) {
+        while (!network.successors(nodeMap.get("svr")).isEmpty()) {
             for(final MyNode n : network.nodes()) {
                 if (network.successors(n).isEmpty()) {
-                    network.predecessors(n).forEach(p -> p.value += n.value);
+                    final int nodeValue = n.value;
+                    if(n.name.equals("dac") || n.name.equals("fft")) {
+                        for(final MyNode m : network.nodes()) {
+                            m.value = 0;
+                        }
+                    }
+                    network.predecessors(n).forEach(p -> p.value += nodeValue);
                     network.removeNode(n);
                     break;
                 }
             }
         }
 
-        System.out.println(nodeMap.get("you").value);
+        System.out.println(nodeMap.get("svr").value);
         System.out.println("Edges: " + network.edges().size());
         System.out.println("Nodes: " + network.nodes().size());
     }
