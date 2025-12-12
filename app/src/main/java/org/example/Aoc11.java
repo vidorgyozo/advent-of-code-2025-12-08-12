@@ -5,18 +5,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 import com.google.common.collect.Maps;
-import com.google.common.graph.Graph;
 import com.google.common.graph.MutableNetwork;
-import com.google.common.graph.MutableValueGraph;
-import com.google.common.graph.Network;
 import com.google.common.graph.NetworkBuilder;
-import com.google.common.graph.ValueGraphBuilder;
 
 public class Aoc11 {
 
     @SuppressWarnings("UnstableApiUsage")
     public static void main(final String[] args) {
-        final InputStream is = App.class.getClassLoader().getResourceAsStream("input.txt");
+        final InputStream is = App.class.getClassLoader().getResourceAsStream("input11.txt");
         final BufferedReader br = new BufferedReader(new InputStreamReader(is));
         final String[] lines = br.lines().toArray(String[]::new);
         final MutableNetwork<MyNode, MyEdge> network = NetworkBuilder.directed().allowsSelfLoops(false).allowsParallelEdges(false).build();
