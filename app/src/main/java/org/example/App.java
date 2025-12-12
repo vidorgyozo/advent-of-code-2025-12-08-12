@@ -108,9 +108,9 @@ public class App {
             currentLineStates = new ArrayList<>(1000);
             findCombinationWithRepeat();
             sum += currentLineLowest;
-            System.out.println("Hit input size for line " + i + ": " + currentLineLowest);
+            System.out.println("Result for line  " + i + ": " + currentLineLowest);
         }
-        System.out.println("Sum hit input size: " + sum);
+        System.out.println("Sum: " + sum);
         Path file = Path.of("aoc10result.txt");
         Files.writeString(
                 file,
